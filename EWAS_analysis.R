@@ -1,6 +1,6 @@
 library(lme4)
-setwd("/mnt/data1/NIMHANS/Down_stream_analysis/NIMHAMSg/EWAS/")
-load("/mnt/data1/NIMHANS/Down_stream_analysis/NIMHAM_Normalised_snpsremoved.rdat")
+setwd("/gpfs/mrc0/projects/Research_Project-MRC193462")
+load("BDR_combined_1221_QCd.rdat")
 
 pheno <- pheno[order(rownames(pheno)),]
 betas <- betas[,order(colnames(betas))]
