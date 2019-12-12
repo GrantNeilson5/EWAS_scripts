@@ -25,9 +25,12 @@ pheno$Chip <- as.factor(pheno$Chip)
 pheno$Brain_ID <-as.factor(pheno$Brain_ID)
 pheno$Basename <-as.character(pheno$Basename)
 
+## Removing individuals which had NA's for age as lmer does not like NA
+
 pheno <-pheno[-grep("202093120076_R05C01|202093120076_R08C01|203734300117_R02C01", rownames(pheno)),]
 betas <- betas[,-grep("202093120076_R05C01|202093120076_R08C01|203734300117_R02C01", colnames(betas))]
 
+#Creating fucntion with model in it so you cna run in parallel 
 
 testCpG<-function(row, pheno){
   
@@ -39,6 +42,7 @@ testCpG<-function(row, pheno){
   return(c(Beta,SE,P))
 }
 
+## Running function and outputing file intp res 
 
 res<-foreach(i= 1:nrow(betas), .combine=rbind) %dopar%{
   testCpG(betas[i,], pheno)	
