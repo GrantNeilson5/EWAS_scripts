@@ -1,7 +1,7 @@
 #Setting up parallel processors
 library(doParallel)
 library(lme4)
-cl<-makeCluster(10)
+cl<-makeCluster(8)
 registerDoParallel(cl)
 clusterEvalQ(cl, library(lme4))
 library(dplyr, warn.conflicts = FALSE)
@@ -151,10 +151,10 @@ rownames(res)<-rownames(betas)
 colnames(res)<-c("Age_Beta", "Age_SE", "Age_P")
 
 for(i in 1:nrow(betas)){
-  modellmer<-lmer(betas[i,] ~ pheno$Age + pheno$Gender + pheno$Plate + pheno$Chip + (1|pheno$BR) + pheno$prop, REML = FALSE, subset = which(is.na(pheno$Age) == FALSE))
+  modellmer<-lmer(betas[i,] ~ pheno$Age + pheno$Gender + pheno$Plate + pheno$prop + (1|pheno$BR), REML = FALSE, subset = which(is.na(pheno$Age) == FALSE))
   res[i,1]<-fixef(modellmer)["pheno$Age"]
   res[i,2]<-summary(modellmer)$coefficients["pheno$Age", 2]
-  model.null<-lmer(betas[i,] ~  pheno$Gender + pheno$Plate + pheno$Chip + (1|pheno$BR) + pheno$prop, REML = FALSE, subset = which(is.na(pheno$Age) == FALSE))
+  model.null<-lmer(betas[i,] ~  pheno$Gender + pheno$Plate + pheno$prop + (1|pheno$BR), REML = FALSE, subset = which(is.na(pheno$Age) == FALSE))
   res[i,3]<-anova(modellmer,model.null)["modellmer","Pr(>Chisq)"]
 }
 }
@@ -163,6 +163,25 @@ res<-foreach(i=1:nrow(betas), .combine=rbind) %dopar%{
   testCpG(betas[i,], pheno)	
 }
 
+
+
+testCpG<-function(row, pheno){
+  
+    modellmer<-lmer(betas[1,] ~ Age + Gender + Plate + prop + (1|BR), data = pheno, REML = FALSE, subset = which(is.na(pheno$Age) == FALSE))
+    Beta<-fixef(modellmer)["Age"]
+    SE<-summary(modellmer)$coefficients["Age", 2]
+    model.null<-lmer(betas[i,] ~ Gender + Plate + prop + (1|BR), data= pheno, REML = FALSE, subset = which(is.na(pheno$Age) == FALSE))
+    P<-anova(modellmer,model.null)["modellmer","Pr(>Chisq)"]
+    return(c(Beta,SE,P))
+}
+
+
+res<-foreach(i=1:10, .combine=rbind) %dopar%{
+  testCpG(betas[i,], pheno)	
+}
+
+rownames(res)<-rownames(betas)
+colnames(res)<-c("Age_Beta", "Age_SE", "Age_P")
 
 res[,"Age_Beta"]<-res[,"Age_Beta"]*100
 res[,"Age_SE"]<-res[,"Age_SE"]*100
