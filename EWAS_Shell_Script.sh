@@ -4,7 +4,7 @@
 #PBS -l walltime=24:00:00 # maximum wall time for the job
 #PBS -A Research_Project-MRC190311 #reserch project to submit under
 #PBS -l feature=highmem
-#PBS -l procs=14 # Number of processors 
+#PBS -l nodes=1:ppn=16 # Number of processors 
 #PBS -m e -M g.neilson@exeter.ac.uk # email me at job completion 
 
 module load Miniconda3
