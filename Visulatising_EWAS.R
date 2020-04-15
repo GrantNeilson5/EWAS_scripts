@@ -10,7 +10,9 @@ res <- read.csv("EWAS_Age_BDR.csv", row.names = 1)
 
 ## QQ plot 
 pdf("/gpfs/mrc0/projects/Research_Project-MRC193462/EWAS/Plots/QQplot_of_EWAS_Age.pdf")
-qq(res$Age_P)
+lamda <- qchisq(1-median(res$phenotype_P),1)/qchisq(0.5,1)
+qq(res$phenotype_P, main = "Phenotype Predicted Tissue")
+mtext(paste("Lamda = ", signif(lamda,3)), side = 3, adj = 1)
 dev.off()
 
 
@@ -26,10 +28,11 @@ res$CHR<-as.numeric(as.character(res$CHR))
 res<-res[which(res$CHR != ""),]
 res<-res[which(res$MAPINFO != ""),]
 
+res$SNP <- rownames(res)
 bonfP<-0.05/nrow(res)
 
 pdf("/gpfs/mrc0/projects/Research_Project-MRC193462/EWAS/Plots/Manhattan_plot_of_Age.pdf")
-manhattan(res, snp = rownames(res), p = "Age_P", bp = "MAPINFO", chr = "CHR", genomewide = -log10(bonfP), suggestiveline = -log10(5e-5), logp=T, col=c("blue","yellow"), ylim=c(0,50))
+manhattan(res, p = "Age_P", bp = "MAPINFO", chr = "CHR", genomewide = -log10(bonfP), suggestiveline = -log10(5e-5), logp=T, col=c("blue","yellow"), ylim=c(0,10))
 dev.off()
 
 ##Heatmaps #######
